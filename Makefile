@@ -4,10 +4,7 @@ all:
 	g++ $(CFLAGS) file.cpp -o file -lm
 
 clean:
-	rm -f *.o test
-
-clean2:
-	rm -f *.o
+	rm -f *.o 
 
 run:
 	./file
