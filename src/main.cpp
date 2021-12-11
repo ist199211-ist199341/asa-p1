@@ -1,50 +1,57 @@
 #include <iostream>
 #include <vector>
 
-#define max(a, b) (a > b ? a : b)
-
-std::vector<int> f1(std::vector<int> sequence);
+void fill_vector_until_newline(std::vector<std::int64_t> *sequence);
+void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result);
+int64_t solve_p2(std::vector<std::int64_t> *sequence1,
+                 std::vector<std::int64_t> *sequence2);
 
 int main()
 {
-    int c = 0;
     int num_problem;
-    std::vector<int> sequence1;
+    std::vector<std::int64_t> sequence1, sequence2;
+
     std::cin >> num_problem;
 
-    if (num_problem == 2)
+    fill_vector_until_newline(&sequence1);
+    if (num_problem == 1)
     {
-        while (c != '\n')
-        {
-            std::vector<int> sequence2;
-            std::cin >> c;
-            sequence2.push_back(c);
-            c = getchar();
-        }
+        std::int64_t result[2];
+        solve_p1(&sequence1, result);
+        std::cout << result[0] << " " << result[1] << std::endl;
     }
-    else
-    { // Unknown Input (kinda cursed)
-        if (num_problem != 1)
-            return -1;
-    }
-
-    while (c != EOF)
+    else if (num_problem == 2)
     {
-        std::cin >> c;
-        sequence1.push_back(c);
-        c = getchar();
-    }
+        fill_vector_until_newline(&sequence2);
 
-    std::vector<int> result = f1(sequence1);
-    std::cout << result[0] << " " << result[1] << std::endl;
+        std::int64_t result = solve_p2(&sequence1, &sequence2);
+        std::cout << result << std::endl;
+    }
 
     return 0;
 }
 
-std::vector<int> f1(std::vector<int> sequence)
+void fill_vector_until_newline(std::vector<std::int64_t> *sequence)
 {
-    std::vector<int> result;
-    result.push_back(69);
-    result.push_back(420);
-    return result;
+    std::int64_t c = 0;
+    while (c != '\n' && c != EOF)
+    {
+        std::cin >> c;
+        sequence->push_back(c);
+        c = getchar();
+    }
+}
+
+void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result)
+{
+    // TODO
+    result[0] = 69;
+    result[1] = 420;
+}
+
+std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
+                      std::vector<std::int64_t> *sequence2)
+{
+    // TODO
+    return 69420;
 }

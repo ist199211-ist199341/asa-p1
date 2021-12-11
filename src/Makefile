@@ -1,10 +1,12 @@
 CFLAGS = -std=c++11 -O3 -Wall
 
-all:
+all: main
+
+main: main.cpp
 	g++ $(CFLAGS) main.cpp -o main -lm
 
 clean:
-	rm -f *.o 
+	rm -f *.o main
 
-run:
+run: main
 	./main
