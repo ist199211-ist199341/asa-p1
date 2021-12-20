@@ -52,6 +52,49 @@ void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result)
 std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
                       std::vector<std::int64_t> *sequence2)
 {
-    // TODO
-    return 69420;
+    size_t len1 = sequence1->size();
+    size_t len2 = sequence2->size();
+    std::vector<std::vector<std::int64_t>> lcs_matrix(len1 + 1, std::vector<std::int64_t>(len2 + 1));
+
+    std::vector<size_t> equal_seq_i;
+    std::vector<size_t> equal_seq_j;
+
+    for (size_t i = 0; i < len1; ++i)
+    {
+        for (size_t j = 0; j < len2; ++j)
+        {
+            std::int64_t val1 = sequence1->at(i);
+            std::int64_t val2 = sequence2->at(j);
+            if (val1 == val2)
+            {
+                std::int64_t prev_max_length = 0;
+                size_t len_equal = equal_seq_i.size();
+                for (size_t k = 0; k < len_equal; ++k)
+                {
+                    size_t equal_pos_i = equal_seq_i.at(k);
+                    size_t equal_pos_j = equal_seq_j.at(k);
+                    if (equal_pos_i < i && equal_pos_j < j && sequence1->at(equal_pos_i) < val1)
+                    {
+                        std::int64_t max = lcs_matrix.at(equal_pos_i + 1).at(equal_pos_j + 1);
+                        if (max > prev_max_length)
+                        {
+                            prev_max_length = max;
+                        }
+                    }
+                }
+                equal_seq_i.push_back(i);
+                equal_seq_j.push_back(j);
+                lcs_matrix.at(i + 1).at(j + 1) = prev_max_length + 1;
+            }
+            else
+            {
+                std::int64_t top = lcs_matrix.at(i + 1).at(j);
+                std::int64_t left = lcs_matrix.at(i).at(j + 1);
+
+                lcs_matrix.at(i + 1).at(j + 1) = top > left ? top : left;
+            }
+        }
+    }
+
+    return lcs_matrix.at(len1).at(len2);
 }
