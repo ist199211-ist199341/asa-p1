@@ -44,9 +44,54 @@ void fill_vector_until_newline(std::vector<std::int64_t> *sequence)
 
 void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result)
 {
-    // TODO
-    result[0] = 69;
-    result[1] = 420;
+    size_t input_len = sequence->size();
+    std::int64_t global_max_length = 0;
+    std::vector<std::int64_t> max_until(input_len, 0);
+    std::vector<std::int64_t> count_until(input_len, 0);
+
+    for (size_t i = 0; i < input_len; ++i)
+    {
+        std::int64_t max = 0;
+        std::int64_t count = 0;
+        for (size_t j = 0; j < i; ++j)
+        {
+            if (sequence->at(j) < sequence->at(i) && max_until.at(j) > max)
+            {
+                max = max_until[j];
+            }
+        }
+
+        for (size_t j = 0; j < i; ++j)
+        {
+            if (sequence->at(j) < sequence->at(i) && max_until.at(j) == max)
+            {
+                count += count_until[j];
+            }
+        }
+
+        ++max;
+
+        max_until.at(i) = max;
+        count_until.at(i) = count <= 0 ? 1 : count;
+
+        if (max > global_max_length)
+        {
+            global_max_length = max;
+        }
+    }
+
+    std::int64_t max_count = 0;
+    size_t count_until_len = count_until.size();
+    for (size_t i = 0; i < count_until_len; ++i)
+    {
+        if (max_until.at(i) == global_max_length)
+        {
+            max_count += count_until.at(i);
+        }
+    }
+
+    result[0] = global_max_length;
+    result[1] = max_count;
 }
 
 std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
