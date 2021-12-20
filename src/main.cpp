@@ -2,6 +2,8 @@
 #include <vector>
 #include <limits>
 
+#define max(a, b) (a > b ? a : b)
+
 void fill_vector_until_newline(std::vector<std::int64_t> *sequence);
 void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result);
 void solve_p1_aux(std::vector<std::int64_t> *sequence, std::int64_t *result, int index, int len, int curr_num);
@@ -48,46 +50,47 @@ void fill_vector_until_newline(std::vector<std::int64_t> *sequence)
 void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result)
 {
     int seq_len = sequence->size();
-    result[0] = sequence->at(0);
-    int curr_num = std::numeric_limits<int>::min();
+    result[0] = 0;
 
     for (int index = 0; index < seq_len; index++)
     {
-        solve_p1_aux(sequence, result, index, 0, curr_num);
+        solve_p1_aux(sequence, result, index, 1, sequence->at(index));
     }
 }
 
 void solve_p1_aux(std::vector<std::int64_t> *sequence, std::int64_t *result, int index, int len, int curr_num)
 {
+    // when it gets to final number
     if (index + 1 == (int)sequence->size())
     {
-        std::cout << len << std::endl;
+        if (len == result[0])
+            result[1]++;
+
+        if (len > result[0])
+        {
+            result[0] = len;
+            result[1] = 1;
+        }
         return;
     }
-
+    // if the next number is bigger
     if (sequence->at(index + 1) > curr_num)
     {
         // accepts the next number
         solve_p1_aux(sequence, result, index + 1, len + 1, sequence->at(index + 1));
-        // skips the next number
-        solve_p1_aux(sequence, result, index + 1, len, curr_num);
     }
     else
     {
-        if (sequence->at(index + 1) == curr_num)
-        {
-            solve_p1_aux(sequence, result, index + 1, len, curr_num + 1);
-        }
-        else
-        {
-            solve_p1_aux(sequence, result, index + 1, len, std::numeric_limits<int>::min());
-        }
+        // start new
+        solve_p1_aux(sequence, result, index + 1, 1, sequence->at(index + 1));
     }
+    // skip
+    solve_p1_aux(sequence, result, index + 1, len, curr_num);
 }
 
 std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
                       std::vector<std::int64_t> *sequence2)
 {
-    // TODO
-    return 69420;
+    std::vector<std::int64_t> common_sequence;
+    int index1 = 0, index2 = 0;
 }
