@@ -1,22 +1,38 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
-void fill_vector_until_newline(std::vector<std::int64_t> *sequence);
-void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result);
-int64_t solve_p2(std::vector<std::int64_t> *sequence1,
-                 std::vector<std::int64_t> *sequence2);
+typedef unsigned long long ll;
+
+struct sol_pair
+{
+    ll num;
+    ll count;
+};
+
+typedef std::vector<sol_pair> stack_t;
+typedef std::vector<stack_t *> stacks_t;
+
+void fill_vector_until_newline(std::vector<ll> *sequence);
+void solve_p1(std::vector<ll> *sequence, ll *result);
+ll solve_p2(std::vector<ll> *sequence1,
+            std::vector<ll> *sequence2);
+
+// aux fn p1
+stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n);
+ll get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper);
 
 int main()
 {
     int num_problem;
-    std::vector<std::int64_t> sequence1, sequence2;
+    std::vector<ll> sequence1, sequence2;
 
     std::cin >> num_problem;
 
     fill_vector_until_newline(&sequence1);
     if (num_problem == 1)
     {
-        std::int64_t result[2];
+        ll result[2];
         solve_p1(&sequence1, result);
         std::cout << result[0] << " " << result[1] << std::endl;
     }
@@ -24,16 +40,16 @@ int main()
     {
         fill_vector_until_newline(&sequence2);
 
-        std::int64_t result = solve_p2(&sequence1, &sequence2);
+        ll result = solve_p2(&sequence1, &sequence2);
         std::cout << result << std::endl;
     }
 
     return 0;
 }
 
-void fill_vector_until_newline(std::vector<std::int64_t> *sequence)
+void fill_vector_until_newline(std::vector<ll> *sequence)
 {
-    std::int64_t c = 0;
+    long long c = 0;
     while (c != '\n' && c != EOF)
     {
         std::cin >> c;
@@ -42,60 +58,62 @@ void fill_vector_until_newline(std::vector<std::int64_t> *sequence)
     }
 }
 
-void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result)
+void solve_p1(std::vector<ll> *sequence, ll *result)
 {
-    size_t input_len = sequence->size();
-    std::int64_t global_max_length = 0;
-    std::vector<std::int64_t> max_until(input_len, 0);
-    std::vector<std::int64_t> count_until(input_len, 0);
+    stacks_t stacks(0);
 
-    for (size_t i = 0; i < input_len; ++i)
+    for (auto it = sequence->begin(); it != sequence->end(); ++it)
     {
-        std::int64_t max = 0;
-        std::int64_t count = 0;
-        for (size_t j = 0; j < i; ++j)
+        auto insertion_stack = get_stack_to_insert_to(&stacks, *it);
+
+        ll count = 1;
+        if (insertion_stack != stacks.begin())
         {
-            if (sequence->at(j) < sequence->at(i) && max_until.at(j) > max)
-            {
-                max = max_until[j];
-            }
+            count = get_cumv_count_from_prev_stack(insertion_stack, *it);
         }
-
-        for (size_t j = 0; j < i; ++j)
+        if (insertion_stack == stacks.end())
         {
-            if (sequence->at(j) < sequence->at(i) && max_until.at(j) == max)
-            {
-                count += count_until[j];
-            }
+            // add new stack
+            stacks.push_back(new stack_t(1, {*it, count}));
         }
-
-        ++max;
-
-        max_until.at(i) = max;
-        count_until.at(i) = count <= 0 ? 1 : count;
-
-        if (max > global_max_length)
+        else
         {
-            global_max_length = max;
+            count += (*insertion_stack)->back().count;
+            (*insertion_stack)->push_back({*it, count});
         }
     }
 
-    std::int64_t max_count = 0;
-    size_t count_until_len = count_until.size();
-    for (size_t i = 0; i < count_until_len; ++i)
-    {
-        if (max_until.at(i) == global_max_length)
-        {
-            max_count += count_until.at(i);
-        }
-    }
-
-    result[0] = global_max_length;
-    result[1] = max_count;
+    result[0] = stacks.size();
+    result[1] = stacks.back()->back().count;
 }
 
-std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
-                      std::vector<std::int64_t> *sequence2)
+stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n)
+{
+    return std::lower_bound(stacks->begin(), stacks->end(), n,
+                            [](stack_t *a, ll n)
+                            { return a->back().num < n; });
+}
+
+ll get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper)
+{
+    stacks_t::iterator prev_stack_it = curr - 1;
+    ll max_count = (*prev_stack_it)->back().count;
+    ll min_count = 0;
+
+    auto lower = std::lower_bound((*prev_stack_it)->begin(), (*prev_stack_it)->end(), upper,
+                                  [](sol_pair a, ll n)
+                                  { return a.num >= n; });
+
+    if (lower != (*prev_stack_it)->begin())
+    {
+        min_count = (lower - 1)->count;
+    }
+
+    return max_count - min_count;
+}
+
+ll solve_p2(std::vector<ll> *sequence1,
+            std::vector<ll> *sequence2)
 {
     // TODO
     return 69420;
