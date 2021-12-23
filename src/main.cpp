@@ -2,25 +2,26 @@
 #include <vector>
 #include <algorithm>
 
-typedef unsigned long long ll;
+typedef unsigned long long ull;
+typedef long long ll;
 
 struct sol_pair
 {
     ll num;
-    ll count;
+    ull count;
 };
 
 typedef std::vector<sol_pair> stack_t;
 typedef std::vector<stack_t *> stacks_t;
 
 void fill_vector_until_newline(std::vector<ll> *sequence);
-void solve_p1(std::vector<ll> *sequence, ll *result);
+void solve_p1(std::vector<ll> *sequence, ull *result);
 ll solve_p2(std::vector<ll> *sequence1,
             std::vector<ll> *sequence2);
 
 // aux fn p1
 stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n);
-ll get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper);
+ull get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper);
 
 int main()
 {
@@ -32,7 +33,7 @@ int main()
     fill_vector_until_newline(&sequence1);
     if (num_problem == 1)
     {
-        ll result[2];
+        ull result[2];
         solve_p1(&sequence1, result);
         std::cout << result[0] << " " << result[1] << std::endl;
     }
@@ -40,7 +41,7 @@ int main()
     {
         fill_vector_until_newline(&sequence2);
 
-        ll result = solve_p2(&sequence1, &sequence2);
+        ull result = solve_p2(&sequence1, &sequence2);
         std::cout << result << std::endl;
     }
 
@@ -58,7 +59,7 @@ void fill_vector_until_newline(std::vector<ll> *sequence)
     }
 }
 
-void solve_p1(std::vector<ll> *sequence, ll *result)
+void solve_p1(std::vector<ll> *sequence, ull *result)
 {
     stacks_t stacks(0);
 
@@ -66,7 +67,7 @@ void solve_p1(std::vector<ll> *sequence, ll *result)
     {
         auto insertion_stack = get_stack_to_insert_to(&stacks, *it);
 
-        ll count = 1;
+        ull count = 1;
         if (insertion_stack != stacks.begin())
         {
             count = get_cumv_count_from_prev_stack(insertion_stack, *it);
@@ -94,11 +95,11 @@ stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n)
                             { return a->back().num < n; });
 }
 
-ll get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper)
+ull get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper)
 {
     stacks_t::iterator prev_stack_it = curr - 1;
-    ll max_count = (*prev_stack_it)->back().count;
-    ll min_count = 0;
+    ull max_count = (*prev_stack_it)->back().count;
+    ull min_count = 0;
 
     auto lower = std::lower_bound((*prev_stack_it)->begin(), (*prev_stack_it)->end(), upper,
                                   [](sol_pair a, ll n)
