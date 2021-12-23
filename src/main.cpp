@@ -6,6 +6,7 @@
 #define min(a, b) (a < b ? a : b)
 
 typedef long long ll;
+typedef unsigned long long ull;
 
 void fill_vector_until_newline(std::vector<std::int64_t> *sequence);
 void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result);
@@ -100,40 +101,40 @@ std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
     size_t len1 = sequence1->size();
     size_t len2 = sequence2->size();
 
-    ll *dp = (ll *)malloc(len2 * sizeof(ll));
+    ull *dp = (ull *)malloc(len2 * sizeof(ull));
 
-    for (int i = 0; i < len2; i++)
+    for (size_t i = 0; i < len2; i++)
     {
         dp[i] = 0;
     }
 
     // Traverse all elements of arr1[]
-    for (int i = 0; i < len1; i++)
+    for (size_t i = 0; i < len1; i++)
     {
         // Initialize current length of LCIS
-        int current = 0;
+        ull current = 0;
 
         // For each element of arr1[], traverse all
         // elements of arr2[].
-        for (int j = 0; j < len2; j++)
+        for (size_t j = 0; j < len2; j++)
         {
             // If both the array have same elements.
             // Note that we don't break the loop here.
-            if (sequence1[i] == sequence2[j])
+            if (sequence1->at(i) == sequence2->at(j))
                 if (current + 1 > dp[j])
                     dp[j] = current + 1;
 
             /* Now seek for previous smaller common
                element for current element of arr1 */
-            if (sequence1[i] > sequence2[j])
+            if (sequence1->at(i) > sequence2->at(j))
                 if (dp[j] > current)
                     current = dp[j];
         }
     }
 
     // The maximum value in table[] is out result
-    int result = 0;
-    for (int i = 0; i < len2; i++)
+    ull result = 0;
+    for (size_t i = 0; i < len2; i++)
         if (dp[i] > result)
             result = dp[i];
 
@@ -175,7 +176,7 @@ int lcs(std::vector<std::int64_t> *sequence1, std::vector<std::int64_t> *sequenc
 
 void remove_element_vector(std::vector<std::int64_t> *sequence, int *array, int index)
 {
-    for (int i = 0; i < sequence->size(); i++)
+    for (size_t i = 0; i < sequence->size(); i++)
     {
         if (array[sequence->at(i) + index * 10])
         {
