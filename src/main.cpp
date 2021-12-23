@@ -1,34 +1,39 @@
 #include <iostream>
 #include <vector>
-#include <limits>
+#include <algorithm>
 
-#define max(a, b) (a > b ? a : b)
-#define min(a, b) (a < b ? a : b)
-
-typedef long long ll;
 typedef unsigned long long ull;
+typedef long long ll;
 
-void fill_vector_until_newline(std::vector<std::int64_t> *sequence);
-void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result);
-void solve_p1_aux(std::vector<std::int64_t> *sequence, std::int64_t *result, int index, int len, int curr_num);
+struct sol_pair
+{
+    ll num;
+    ull count;
+};
 
-int64_t solve_p2(std::vector<std::int64_t> *sequence1,
-                 std::vector<std::int64_t> *sequence2);
+typedef std::vector<sol_pair> stack_t;
+typedef std::vector<stack_t *> stacks_t;
 
-int lcs(std::vector<std::int64_t> *sequence1, std::vector<std::int64_t> *sequence2, int *common_sequence);
-void remove_element_vector(std::vector<std::int64_t> *sequence, int *array, int index);
+void fill_vector_until_newline(std::vector<ll> *sequence);
+void solve_p1(std::vector<ll> *sequence, ull *result);
+size_t solve_p2(std::vector<ll> *sequence1,
+                std::vector<ll> *sequence2);
+
+// aux fn p1
+stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n);
+ull get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper);
 
 int main()
 {
     int num_problem;
-    std::vector<std::int64_t> sequence1, sequence2;
+    std::vector<ll> sequence1, sequence2;
 
     std::cin >> num_problem;
 
     fill_vector_until_newline(&sequence1);
     if (num_problem == 1)
     {
-        std::int64_t result[2];
+        ull result[2];
         solve_p1(&sequence1, result);
         std::cout << result[0] << " " << result[1] << std::endl;
     }
@@ -36,67 +41,120 @@ int main()
     {
         fill_vector_until_newline(&sequence2);
 
-        std::int64_t result = solve_p2(&sequence1, &sequence2);
+        ull result = solve_p2(&sequence1, &sequence2);
         std::cout << result << std::endl;
     }
 
     return 0;
 }
 
-void fill_vector_until_newline(std::vector<std::int64_t> *sequence)
+void fill_vector_until_newline(std::vector<ll> *sequence)
 {
-    std::int64_t c = 0;
-    while (c != '\n' && c != EOF)
+    long long c = getchar();
+    long long value;
+    while (c == ' ' || c == '\n')
     {
-        std::cin >> c;
-        sequence->push_back(c);
+        c = getchar();
+    }
+
+    while (true)
+    {
+        value = 0;
+        bool changed = false;
+        bool negative = false;
+        while (c != ' ')
+        {
+            if (c == '\n' || c == EOF)
+            {
+                if (changed)
+                {
+                    if (negative)
+                    {
+                        value = -value;
+                    }
+                    sequence->push_back(value);
+                }
+                return;
+            }
+            if (c == '-')
+            {
+                value = value;
+                negative = true;
+                changed = true;
+            }
+            else if (c != ' ')
+            {
+                value = value * 10 + c - '0';
+                changed = true;
+            }
+            c = getchar();
+        }
+        if (changed)
+        {
+            if (negative)
+                value = -value;
+            sequence->push_back(value);
+        }
         c = getchar();
     }
 }
 
-void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result)
+void solve_p1(std::vector<ll> *sequence, ull *result)
 {
-    int seq_len = sequence->size();
-    result[0] = 0;
+    stacks_t stacks(0);
 
-    for (int index = 0; index < seq_len; index++)
+    for (auto it = sequence->begin(); it != sequence->end(); ++it)
     {
-        solve_p1_aux(sequence, result, index, 1, sequence->at(index));
-    }
-}
+        auto insertion_stack = get_stack_to_insert_to(&stacks, *it);
 
-void solve_p1_aux(std::vector<std::int64_t> *sequence, std::int64_t *result, int index, int len, int curr_num)
-{
-    // when it gets to final number
-    if (index + 1 == (int)sequence->size())
-    {
-        if (len == result[0])
-            result[1]++;
-
-        if (len > result[0])
+        ull count = 1;
+        if (insertion_stack != stacks.begin())
         {
-            result[0] = len;
-            result[1] = 1;
+            count = get_cumv_count_from_prev_stack(insertion_stack, *it);
         }
-        return;
+        if (insertion_stack == stacks.end())
+        {
+            // add new stack
+            stacks.push_back(new stack_t(1, {*it, count}));
+        }
+        else
+        {
+            count += (*insertion_stack)->back().count;
+            (*insertion_stack)->push_back({*it, count});
+        }
     }
-    // if the next number is bigger
-    if (sequence->at(index + 1) > curr_num)
-    {
-        // accepts the next number
-        solve_p1_aux(sequence, result, index + 1, len + 1, sequence->at(index + 1));
-    }
-    else
-    {
-        // start new
-        solve_p1_aux(sequence, result, index + 1, 1, sequence->at(index + 1));
-    }
-    // skip
-    solve_p1_aux(sequence, result, index + 1, len, curr_num);
+
+    result[0] = stacks.size();
+    result[1] = stacks.back()->back().count;
 }
 
-std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
-                      std::vector<std::int64_t> *sequence2)
+stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n)
+{
+    return std::lower_bound(stacks->begin(), stacks->end(), n,
+                            [](stack_t *a, ll n)
+                            { return a->back().num < n; });
+}
+
+ull get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper)
+{
+    stacks_t::iterator prev_stack_it = curr - 1;
+    ull max_count = (*prev_stack_it)->back().count;
+    ull min_count = 0;
+
+    auto lower = std::lower_bound((*prev_stack_it)->begin(), (*prev_stack_it)->end(), upper,
+                                  [](sol_pair a, ll n)
+                                  { return a.num >= n; });
+
+    if (lower != (*prev_stack_it)->begin())
+    {
+        min_count = (lower - 1)->count;
+    }
+
+    return max_count - min_count;
+}
+
+size_t solve_p2(std::vector<ll> *sequence1,
+                std::vector<ll> *sequence2)
 {
     size_t len1 = sequence1->size();
     size_t len2 = sequence2->size();
@@ -108,83 +166,28 @@ std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
         dp[i] = 0;
     }
 
-    // Traverse all elements of arr1[]
     for (size_t i = 0; i < len1; i++)
     {
-        // Initialize current length of LCIS
+
         ull current = 0;
 
-        // For each element of arr1[], traverse all
-        // elements of arr2[].
         for (size_t j = 0; j < len2; j++)
         {
-            // If both the array have same elements.
-            // Note that we don't break the loop here.
+
             if (sequence1->at(i) == sequence2->at(j))
                 if (current + 1 > dp[j])
                     dp[j] = current + 1;
 
-            /* Now seek for previous smaller common
-               element for current element of arr1 */
             if (sequence1->at(i) > sequence2->at(j))
                 if (dp[j] > current)
                     current = dp[j];
         }
     }
 
-    // The maximum value in table[] is out result
     ull result = 0;
     for (size_t i = 0; i < len2; i++)
         if (dp[i] > result)
             result = dp[i];
 
     return result;
-}
-
-int lcs(std::vector<std::int64_t> *sequence1, std::vector<std::int64_t> *sequence2, int *common_sequence)
-{
-    std::vector<std::vector<int>> lengths =
-        std::vector<std::vector<int>>(
-            sequence1->size() + 1,
-            std::vector<int>(sequence2->size() + 1, 0));
-
-    int lenX = sequence1->size();
-    int lenY = sequence2->size();
-
-    for (int i = 0; i <= lenX; i++)
-    {
-        for (int j = 0; j <= lenY; j++)
-        {
-            if (i == 0 || j == 0)
-            {
-                lengths[i][j] = 0;
-            }
-            else if (sequence1->at(i - 1) == sequence2->at(j - 1))
-            {
-                lengths[i][j] = lengths[i - 1][j - 1] + 1;
-                common_sequence[sequence1->at(i - 1)]++;
-                common_sequence[sequence1->at(i - 1) + 10]++;
-            }
-            else
-            {
-                lengths[i][j] = max(lengths[i - 1][j], lengths[i][j - 1]);
-            }
-        }
-    }
-    return lengths[lenX][lenY];
-}
-
-void remove_element_vector(std::vector<std::int64_t> *sequence, int *array, int index)
-{
-    for (size_t i = 0; i < sequence->size(); i++)
-    {
-        if (array[sequence->at(i) + index * 10])
-        {
-            array[sequence->at(i) + index * 10]--;
-        }
-        else
-        {
-            sequence->at(i) = -1;
-        }
-    }
 }
