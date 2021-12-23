@@ -5,6 +5,8 @@
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
 
+typedef long long ll;
+
 void fill_vector_until_newline(std::vector<std::int64_t> *sequence);
 void solve_p1(std::vector<std::int64_t> *sequence, std::int64_t *result);
 void solve_p1_aux(std::vector<std::int64_t> *sequence, std::int64_t *result, int index, int len, int curr_num);
@@ -95,31 +97,47 @@ void solve_p1_aux(std::vector<std::int64_t> *sequence, std::int64_t *result, int
 std::int64_t solve_p2(std::vector<std::int64_t> *sequence1,
                       std::vector<std::int64_t> *sequence2)
 {
-    int common_sequence[20];
-    for (int i = 0; i < 20; i++)
-        common_sequence[i] = 0;
-    lcs(sequence1, sequence2, common_sequence);
-    remove_element_vector(sequence1, common_sequence, 0);
-    remove_element_vector(sequence2, common_sequence, 1);
+    size_t len1 = sequence1->size();
+    size_t len2 = sequence2->size();
 
-    std::vector<std::int64_t> new_sequence1;
-    std::vector<std::int64_t> new_sequence2;
+    ll *dp = (ll *)malloc(len2 * sizeof(ll));
 
-    for (int i = 0; i < (int)sequence1->size(); i++)
+    for (int i = 0; i < len2; i++)
     {
-        if (sequence1->at(i) != -1)
-            new_sequence1.push_back(sequence1->at(i));
+        dp[i] = 0;
     }
-    for (int i = 0; i < (int)sequence2->size(); i++)
+
+    // Traverse all elements of arr1[]
+    for (int i = 0; i < len1; i++)
     {
-        if (sequence2->at(i) != -1)
-            new_sequence2.push_back(sequence2->at(i));
+        // Initialize current length of LCIS
+        int current = 0;
+
+        // For each element of arr1[], traverse all
+        // elements of arr2[].
+        for (int j = 0; j < len2; j++)
+        {
+            // If both the array have same elements.
+            // Note that we don't break the loop here.
+            if (sequence1[i] == sequence2[j])
+                if (current + 1 > dp[j])
+                    dp[j] = current + 1;
+
+            /* Now seek for previous smaller common
+               element for current element of arr1 */
+            if (sequence1[i] > sequence2[j])
+                if (dp[j] > current)
+                    current = dp[j];
+        }
     }
-    std::int64_t array1[2];
-    std::int64_t array2[2];
-    solve_p1(&new_sequence1, array1);
-    solve_p1(&new_sequence2, array2);
-    return min(array1[0], array2[0]);
+
+    // The maximum value in table[] is out result
+    int result = 0;
+    for (int i = 0; i < len2; i++)
+        if (dp[i] > result)
+            result = dp[i];
+
+    return result;
 }
 
 int lcs(std::vector<std::int64_t> *sequence1, std::vector<std::int64_t> *sequence2, int *common_sequence)
