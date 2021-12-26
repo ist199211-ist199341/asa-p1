@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <string.h>
 #include <sstream>
-#include <unordered_map>
+#include <unordered_set>
 
 typedef unsigned long long ull;
 typedef long long ll;
@@ -17,9 +17,9 @@ struct sol_pair
 typedef std::vector<sol_pair> stack_t;
 typedef std::vector<stack_t *> stacks_t;
 
-void fill_vector_until_newline(std::vector<ll> *sequence, std::unordered_map<ll, int> *elements_sequence1, bool intersection);
-void solve_p1(std::vector<ll> *sequence, ull *result);
-int solve_p2(std::vector<ll> *sequence1,
+void fill_vector_until_newline(std::vector<ll> *sequence, std::unordered_set<ll> *elements_sequence1, bool intersection);
+void solve_p1(std::vector<ll> *sequence, ull *max_length);
+ull solve_p2(std::vector<ll> *sequence1,
              std::vector<ll> *sequence2);
 
 // aux fn p1
@@ -36,14 +36,15 @@ int main()
     std::cin >> num_problem;
     getline(std::cin, dummy);
 
-    std::unordered_map<ll, int> elements_sequence1;
+    std::unordered_set<ll> elements_sequence1;
 
     fill_vector_until_newline(&sequence1, &elements_sequence1, false);
+
     if (num_problem == 1)
     {
-        ull result[2];
-        solve_p1(&sequence1, result);
-        std::cout << result[0] << " " << result[1] << std::endl;
+        ull max_length[2];
+        solve_p1(&sequence1, max_length);
+        std::cout << max_length[0] << " " << max_length[1] << std::endl;
     }
     else if (num_problem == 2)
     {
@@ -55,63 +56,42 @@ int main()
     return 0;
 }
 
-std::vector<std::string> split(std::string str, char delimiter)
-{
-    std::vector<std::string> internal;
-    std::stringstream ss(str); // Turn the string into a stream.
-    std::string tok;
-
-    while (getline(ss, tok, delimiter))
-    {
-        internal.push_back(tok);
-    }
-
-    return internal;
-}
-
-void fill_vector_until_newline(std::vector<ll> *sequence, std::unordered_map<ll, int> *elements_sequence1, bool intersection)
+void fill_vector_until_newline(std::vector<ll> *sequence, std::unordered_set<ll> *elements_sequence1, bool intersection)
 {
     std::string input_sequence;
     getline(std::cin, input_sequence);
-    input_sequence.append(" ");
-    std::vector<std::string> out;
-    out = split(input_sequence, ' ');
-    for (std::string t : out)
+    std::stringstream input_stream(input_sequence);
+    std::string t;
+    while (getline(input_stream, t, ' '))
     {
         if (!t.empty())
         {
+            ll value = std::stoll(t);
             // true - only add if it exists in seq1
             if (intersection)
             {
-                if (elements_sequence1->count(std::stoll(t)) > 0)
+                if (elements_sequence1->count(value) > 0)
                 {
-                    sequence->push_back(std::stoll(t));
-                    elements_sequence1->at(std::stoll(t))--;
+                    sequence->push_back(value);
                 }
             }
             // false - add to hashmap
             else
             {
-                if (elements_sequence1->count(std::stoll(t)) == 0)
-                    elements_sequence1->insert({std::stoll(t), 1});
-
-                else
-                {
-                    elements_sequence1->at(std::stoll(t))++;
-                }
-                sequence->push_back(std::stoll(t));
+                elements_sequence1->insert(value);
+                sequence->push_back(value);
             }
         }
     }
 }
 
-void solve_p1(std::vector<ll> *sequence, ull *result)
+void solve_p1(std::vector<ll> *sequence, ull *max_length)
 {
     stacks_t stacks(0);
     if (sequence->size() == 0)
     {
-        result[0] = 0;
-        result[1] = 0;
+        max_length[0] = 0;
+        max_length[1] = 0;
         return;
     }
 
@@ -136,8 +116,8 @@ void solve_p1(std::vector<ll> *sequence, ull *result)
         }
     }
 
-    result[0] = stacks.size();
-    result[1] = stacks.back()->back().count;
+    max_length[0] = stacks.size();
+    max_length[1] = stacks.back()->back().count;
 }
 
 stacks_t::iterator get_stack_to_insert_to(stacks_t *stacks, ll n)
@@ -165,34 +145,42 @@ ull get_cumv_count_from_prev_stack(stacks_t::iterator curr, ll upper)
     return max_count - min_count;
 }
 
-int solve_p2(std::vector<ll> *sequence1,
+ull solve_p2(std::vector<ll> *sequence1,
              std::vector<ll> *sequence2)
 {
 
-    int *dp = (int *)calloc(sequence2->size() * sizeof(int), sizeof(int));
+    ull *max_length_until = (ull *)calloc(sequence2->size(), sizeof(ull));
+    ull max_length = 0;
 
-    for (size_t i = 0; i < sequence1->size(); i++)
+    for (auto it_seq1 = sequence1->begin(); it_seq1 != sequence1->end(); ++it_seq1)
     {
+        ull length_until_seq1_value = 0;
+        size_t cache_index = 0;
 
-        int current = 0;
-
-        for (size_t j = 0; j < sequence2->size(); j++)
+        for (auto it_seq2 = sequence2->begin(); it_seq2 != sequence2->end(); ++it_seq2)
         {
-
-            if (sequence1->at(i) == sequence2->at(j))
-                if (current + 1 > dp[j])
-                    dp[j] = current + 1;
-
-            if (sequence1->at(i) > sequence2->at(j))
-                if (dp[j] > current)
-                    current = dp[j];
+            if (*it_seq1 > *it_seq2)
+            {
+                if (max_length_until[cache_index] > length_until_seq1_value)
+                {
+                    length_until_seq1_value = max_length_until[cache_index];
+                }
+            }
+            if (*it_seq1 == *it_seq2)
+            {
+                if (length_until_seq1_value + 1 > max_length_until[cache_index])
+                {
+                    max_length_until[cache_index] = length_until_seq1_value + 1;
+                    if (length_until_seq1_value >= max_length)
+                    {
+                        max_length = length_until_seq1_value + 1;
+                    }
+                }
+            }
+            ++cache_index;
         }
     }
 
-    int result = 0;
-    for (size_t i = 0; i < sequence2->size(); i++)
-        if (dp[i] > result)
-            result = dp[i];
-
-    return result;
+    free(max_length_until);
+    return max_length;
 }
