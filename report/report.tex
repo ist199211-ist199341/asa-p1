@@ -1,0 +1,98 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[legalpaper, portrait, margin=3cm]{geometry}
+
+
+\begin{document}
+  \section{Descrição do Problema e da Solução}
+
+  Para o \textbf{problema 1} utilizámos uma lista de pilhas.
+  A lista de pilhas está sempre ordenada pelo último elemento de cada pilha.
+  Cada pilha está sempre ordenada pelos números que contém: o topo da pilha contém o menor elemento da pilha.
+  Ao ler cada elemento da pilha, vamos adicioná-lo ao final da pilha com maior valor no topo, em que o elemento no topo seja maior ou igual ao elemento lido.
+  Caso não exista nenhuma pilha nesta situação (o elemento lido é maior que todos os topos das pilhas), criamos uma nova pilha (que é adicionada ao final da lista de pilhas, por conter o maior elementono topo).
+  No final da aplicação do algoritmo, \textbf{o número de pilhas é igual ao tamanho da maior subsequência estritamente crescente}.
+  Para efetuarmos a contagem de quantas subsequências de tamanho máximo existem, guardamos nas pilhas, juntamente com o elemento, o número de subsequências estritamente crescentes até ao elemento (ou seja, o valor é \textbf{comulativo}).
+  Deste modo, quando inserimos um elemento, o número de subsequências vai ser equivalente à soma das do elemento anterior com as que transitam da pilha anterior (que por sua vez é a diferença entre o número de subsequências até ao elemento topo da pilha e até ao maior elemento menor que o número lido).
+  Visto que guardamos sempre o valor comulativo, \textbf{a quantidade de subsequências de tamanho máximo possíveis é igual à quantidade até elemento no topo da última pilha}.
+
+  Para o \textbf{problema 2} começámos por efetuar um pré-processamento do input.
+  Ao ler a primeira sequência, guardamos numa estrutura, que permita verificar se contém um elemento em tempo constante, todos os elementos contidos na primeira sequência.
+  Assim, ao ler a segunda sequência, apenas consideramos os elementos que apareceram na primeira sequência.
+  Para resolver este problema, precisamos de guardar o tamanho máximo da sequência até a um certo elemento da sequência 1 e de um vetor com o tamanho da segunda sequência, que representa o tamanho máximo de uma subsequência comum estritamente crescente até ao elemento na posição \texttt{i}.
+  Fixamos um elemento da sequência 1, e vamos determinar o valor do vetor em cada elemento da segunda sequência.
+  Caso o valor fixo da sequência 1 seja superior a um certo elemento da sequência 2, definimos que o tamanho máximo da sequência até ao elemento fixo da sequência 1 é o valor do vetor na posição do elemento da sequência 2 (se superior ao que se tem atualmente).
+  Caso o valor fixo da sequência 1 seja igual a um certo elemento da sequência 2, colocamos o valor do vetor como o tamanho máximo da sequência até ao elemento fixo + 1 (se superior ao que se tem atualmente).
+
+  \section{Análise Teórica}
+
+  Seja $N$ o número de elementos da sequência 1 e $M$ o número de elementos da sequência 2.
+
+  \subsection{Problema 1}
+
+  No problema 1, efetua-se uma simples leitura do input, colocando cada elemento num vetor. Logo, $\Theta(N)$.
+
+  Considerando o seguinte pseudo-código:
+
+  \begin{verbatim}
+    Solve_Problem1(L)
+      let SL be an empty list of stacks
+      for el in L
+        let qi be the index of the stack to insert the element into
+        let count := stack_comulative_count(SL[i - 1], el)
+        count += peek_stack(SL[i]).count
+        if i >= len(SL)
+          push_stack(SL[i], (el, count))
+        else
+          let stack = new_stack()
+          push_stack(stack, (el, count))
+          insert_list(SL, stack)
+      let max_length := list_size(SL)
+      let max_length_count := peek_stack(last_element(SL)).count
+
+      return max_length, max_length_count
+  \end{verbatim}
+
+  \begin{itemize}
+    \item Criação de uma lista vazia de stacks é feito em tempo constante, logo $\Theta(1)$.
+    \item Cada elemento da sequência é visitado uma vez, logo $\Theta(N)$.
+    \begin{itemize}
+      \item A lista de pilhas encontra-se ordenada pelo elemento no topo da pilha, pelo que se pode aplicar o algoritmo \textit{binary search} para determinar em que pilha inserir o elemento. Logo, $O(\log N)$.
+      \item Cada pilha encontra-se também ordenada, pelo que se pode determinar o índice do maior elemento menor que o elemento a inserir também pelo algoritmo \textit{binary search}. Determinar o elemento no topo da pilha é feito em tempo constante. Logo, $O(\log N)$.
+      \item Obter o elemento no topo da pilha é feito em tempo constante, logo a soma à quantidade é $\Theta(1)$.
+      \item Adicionar um elemento à pilha é feito também em tempo constante. Logo, $\Theta(1)$.
+      \item Finalmente, adicionar uma pilha à lista é também em tempo constante. Logo, $\Theta(1)$.
+    \end{itemize}
+    \item A obtenção das soluções após construir a lista de pilhas, assim como a aprensentação dos resultados, são feitas em tempo constante. Logo, $\Theta(1)$.
+  \end{itemize}
+
+  Assim, a complexidade global da solução é $O(N \log N)$.
+
+  \subsection{Problema 2}
+
+  No problema 2, efetua-se a leitura do input:
+    Para a sequência 1 coloca-se cada elemento num vetor e num hashset.
+    Para a sequência 2 apenas se coloca os elementos num vetor que se encontram na hashset da sequência 1, isto é, apenas os números em comum nas duas sequências.
+  No pior caso, a inserção no hashset tem complexidade $O(N)$.
+  No entanto, na maior parte das vezes irá ser $O(1)$.
+  Logo, no pior caso vamos ter $O(N^2 + NM)$, mas na maior parte das vezes teremos $O(N + M)$.
+
+  \begin{itemize}
+    \item Criação de um vetor de tamanho $M$ é feito em tempo linear, logo $\Theta(M)$.
+    \item Cada elemento de sequência 1 é visitado uma vez, logo $\Theta(N)$.
+    \begin{itemize}
+      \item Cada elemento da sequência 2 é visitado no máximo uma vez (para cada elemento da sequência 1). Relembra-se que alguns elementos foram retirados no pré-processamento do \textit{input}. Logo, $O(M)$.
+      \begin{itemize}
+        \item São efetuadas comparações entre o elemento da sequência 1 e sequência 2, atualizando no máximo um valor do vetor. Logo, $\Theta(1)$.
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+
+  Assim, a complexidade global da solução é, no pior caso $O(N^2 + NM)$, mas na maior parte das vezes irá ser $O(NM)$.
+
+  \section{Avaliação Experimental dos Resultados}
+
+  \textit{Descrição do tipo experiências feitas e gráfico demonstrativo da avaliação de tempos associados.
+  Gerar pelo menos 10 instâncias (e indicar quais) de tamanho incremental e cálculo dos tempos para cada instância.
+  Gerar o gráfico do tempo (eixo do YYs) em função do tamanho da instância de entrada (eixo dos XXs) como exemplificado abaixo. Indicar a informação dos eixos. Concluir se o gráfico gerado está concordante com a análise teórica prevista.}
+
+\end{document}
