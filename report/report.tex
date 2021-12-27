@@ -18,22 +18,22 @@
 \begin{document}
   \section{Descrição do Problema e da Solução}
 
-  Para o \textbf{problema 1} utilizámos uma lista de pilhas, que está sempre ordenada pelo último elemento de cada pilha.
+  Para o \textbf{problema 1} utilizou-se uma lista de pilhas, que se encontra sempre ordenada pelo último elemento de cada pilha.
   Cada pilha está sempre ordenada pelos números que contém: o topo da pilha contém o menor elemento da pilha.
-  Ao ler cada elemento da pilha, vamos adicioná-lo ao final da pilha com maior valor no topo, em que o elemento no topo seja maior ou igual ao elemento lido.
-  Caso não exista nenhuma pilha nesta situação (o elemento lido é maior que todos os topos das pilhas), criamos uma nova pilha (que é adicionada ao final da lista de pilhas, por conter o maior elemento no topo).
+  Ao ler cada elemento da sequência, este é adicionado ao final da pilha com maior valor no topo, em que o elemento no topo seja maior ou igual ao elemento lido.
+  Caso não exista nenhuma pilha nessa situação (o elemento lido é maior que todos os topos das pilhas), cria-se uma nova pilha (que é adicionada ao final da lista de pilhas, por conter o maior elemento no topo).
   No final da aplicação do algoritmo, \textbf{o número de pilhas é igual ao tamanho da maior subsequência estritamente crescente}.
-  Para efetuarmos a contagem de quantas subsequências de tamanho máximo existem, guardamos nas pilhas, juntamente com o elemento, o número de subsequências estritamente crescentes até ao elemento (ou seja, o valor é \textbf{cumulativo}).
-  Deste modo, quando inserimos um elemento, o número de subsequências vai ser equivalente à soma das do elemento anterior com as que transitam da pilha anterior (que por sua vez é a diferença entre o número de subsequências até ao elemento topo da pilha e até ao maior elemento menor que o número lido).
-  Visto que guardamos sempre o valor cumulativo, \textbf{a quantidade de subsequências de tamanho máximo possíveis é igual à quantidade até elemento no topo da última pilha}.
+  Para se efetuar a contagem de quantas subsequências de tamanho máximo existem, guarda-se nas pilhas, juntamente com o elemento, o número de subsequências estritamente crescentes até ao elemento (ou seja, o valor é \textbf{cumulativo}).
+  Deste modo, quando se insere um elemento, o número de subsequências vai ser equivalente à soma das do elemento anterior com as que transitam da pilha anterior (que por sua vez é a diferença entre o número de subsequências até ao elemento topo da pilha e até ao maior elemento menor que o número lido).
+  Visto que se guarda sempre o valor cumulativo, \textbf{a quantidade de subsequências de tamanho máximo possíveis é igual à quantidade até elemento no topo da última pilha}.
 
-  Para o \textbf{problema 2} começámos por efetuar um pré-processamento do input.
-  Ao ler a sequência 1, guardamos numa estrutura, que permita verificar se contém um elemento em tempo constante, todos os elementos contidos na sequência 1.
-  Assim, ao ler a sequência 2, apenas consideramos os elementos que apareceram na sequência 1.
-  Para resolver este problema, precisamos de guardar o tamanho máximo da sequência até a um certo elemento da sequência 1 e de um vetor com o tamanho da sequência 2, que representa o tamanho máximo de uma subsequência comum estritamente crescente até ao elemento na posição \texttt{i}.
-  Fixamos um elemento da sequência 1, e vamos determinar o valor do vetor em cada elemento da sequência 2.
-  Caso o valor fixo da sequência 1 seja superior a um certo elemento da sequência 2, definimos que o tamanho máximo da sequência até ao elemento fixo da sequência 1 é o valor do vetor na posição do elemento da sequência 2 (se superior ao que se tem atualmente).
-  Caso o valor fixo da sequência 1 seja igual a um certo elemento da sequência 2, colocamos o valor do vetor como o tamanho máximo da sequência até ao elemento fixo + 1 (se superior ao que se tem atualmente).
+  Para o \textbf{problema 2} começa-se por efetuar um pré-processamento do input.
+  Ao ler a sequência 1, guarda-se numa estrutura, que permita verificar se contém um elemento em tempo constante, todos os elementos contidos na sequência 1.
+  Assim, ao ler a sequência 2, apenas se considera os elementos que apareceram na sequência 1.
+  Para resolver este problema, é necessário guardar o tamanho máximo da sequência até a um certo elemento da sequência 1 e de um vetor com o tamanho da sequência 2, que representa o tamanho máximo de uma subsequência comum estritamente crescente até ao elemento na posição \texttt{i}.
+  Fixa-se um elemento da sequência 1, e determina-se o valor do vetor em cada elemento da sequência 2.
+  Caso o valor fixo da sequência 1 seja superior a um certo elemento da sequência 2, define-se que o tamanho máximo da sequência até ao elemento fixo da sequência 1 é o valor do vetor na posição do elemento da sequência 2 (se superior ao que se tem atualmente).
+  Caso o valor fixo da sequência 1 seja igual a um certo elemento da sequência 2, coloca-se o valor do vetor como o tamanho máximo da sequência até ao elemento fixo + 1 (se superior ao que se tem atualmente).
 
   \section{Análise Teórica}
 
@@ -59,16 +59,16 @@
 
   Assim, a complexidade global da solução do problema 1 é $O(N \log N)$.
 
-  No problema 1, temos complexidade espacial $\Theta(N)$, visto que cada elemento da sequência é adicionado à lista de pilhas uma e apenas uma só vez.
+  No problema 1, tem-se complexidade espacial $\Theta(N)$, visto que cada elemento da sequência é adicionado à lista de pilhas uma e apenas uma só vez.
 
   \subsection{Problema 2}
 
   No problema 2, efetua-se um pré-processamento na leitura do input:
     Para a sequência 1 coloca-se cada elemento num vetor e num hashset.
-    Para a sequência 2 apenas se coloca os elementos num vetor que se encontram na hashset da sequência 1, isto é, apenas os números em comum nas duas sequências.
-  No pior caso, a inserção no hashset tem complexidade $O(N)$.
-  No entanto, na maior parte das vezes irá ser $O(1)$.
-  Logo, no pior caso vamos ter $O(N^2 + NM)$, mas na maior parte das vezes teremos $O(N + M)$.
+    Para a sequência 2 apenas se coloca os elementos num vetor que se encontram no hashset da sequência 1, isto é, apenas os números em comum nas duas sequências.
+  No pior caso, a inserção e leitura do hashset tem complexidade $O(N)$.
+  No entanto, o caso médio é $O(1)$.
+  Logo, no pior caso tem-se $O(N^2 + NM)$, mas no caso médio tem-se $O(N + M)$.
 
   \begin{itemize}
     \setlength{\itemsep}{0pt}
@@ -84,9 +84,9 @@
     \end{itemize}
   \end{itemize}
 
-  Assim, a complexidade global da solução do problema 2 é, no pior caso $O(N^2 + NM)$, mas na maior parte das vezes irá ser $O(NM)$.
+  Assim, a complexidade global da solução do problema 2 é, no pior caso $O(N^2 + NM)$, mas no caso médio é $O(NM)$.
 
-  No problema 2, temos complexidade espacial $O(N + M)$, visto que utilizamos um hashset com tamanho máximo igual ao da primeira sequência no pré-processamento do input e um vetor auxiliar na resolução do problema com tamanho máximo igual ao da sequência 2.
+  No problema 2, tem-se complexidade espacial $O(N + M)$, visto que se utilizou um hashset com tamanho máximo igual ao da primeira sequência no pré-processamento do input e um vetor auxiliar na resolução do problema com tamanho máximo inferior ao da sequência 2 (devido ao pré-processamento do \textit{input}).
 
   \section{Avaliação Experimental dos Resultados}
 
