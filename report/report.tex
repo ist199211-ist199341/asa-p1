@@ -35,11 +35,11 @@
 \begin{document}
   \section{Descrição do Problema e da Solução}
 
-  Para o \textbf{problema 1} utilizou-se uma lista de pilhas, que se encontra sempre ordenada pelo último elemento de cada pilha. \cite{aldous-1999}
+  Para o \textbf{problema 1} utilizou-se uma lista de pilhas, que se encontra sempre ordenada pelo último elemento de cada pilha.
   Cada pilha está sempre ordenada pelos números que contém: o topo da pilha contém o menor elemento da pilha.
   Ao ler cada elemento da sequência, este é adicionado ao final da pilha com maior valor no topo, em que o elemento no topo seja maior ou igual ao elemento lido.
   Caso não exista nenhuma pilha nessa situação (o elemento lido é maior que todos os topos das pilhas), cria-se uma nova pilha (que é adicionada ao final da lista de pilhas, por conter o maior elemento no topo).
-  No final da aplicação do algoritmo, \textbf{o número de pilhas é igual ao tamanho da maior subsequência estritamente crescente}.
+  No final da aplicação do algoritmo, \textbf{o número de pilhas é igual ao tamanho da maior subsequência estritamente crescente}. \cite{aldous-1999}
   Para se efetuar a contagem de quantas subsequências de tamanho máximo existem, guarda-se nas pilhas, juntamente com o elemento, o número de subsequências estritamente crescentes até ao elemento (ou seja, o valor é \textbf{cumulativo}).
   Deste modo, quando se insere um elemento, o número de subsequências vai ser equivalente à soma das do elemento anterior com as que transitam da pilha anterior (que por sua vez é a diferença entre o número de subsequências até ao elemento topo da pilha e até ao maior elemento menor que o número lido).
   Visto que se guarda sempre o valor cumulativo, \textbf{a quantidade de subsequências de tamanho máximo possíveis é igual à quantidade até elemento no topo da última pilha}.
